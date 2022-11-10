@@ -1,4 +1,4 @@
-package segnemtedfilesystem;
+package segmentedfilesystem;
 
 public class HeaderPacket extends Packet {
   protected String fileName;
