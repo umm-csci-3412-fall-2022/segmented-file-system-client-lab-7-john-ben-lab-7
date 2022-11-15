@@ -2,6 +2,9 @@ package segmentedfilesystem;
 import java.util.PriorityQueue;
 import java.io.IOException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.stream.Collector;
+import java.util.Arrays;
 
 public class FileSerializer {
   String fileName;
@@ -20,7 +23,7 @@ public class FileSerializer {
       addDataPacket(dp);
     }
     if (isWritable()) {
-      //Ship the File
+      writeFile();
       return true;
     }
     return false;
@@ -39,16 +42,28 @@ public class FileSerializer {
   }
 
   private boolean isWritable() {
-    return (numPackets == fileSize) && (fileName != null);
+    return (fileSize > 0) && (numPackets == fileSize) && (fileName != null);
   }
+
+  private byte[] convertListofBytes(ArrayList<Byte> l) {
+     byte[] output = new byte[l.size()];
+     for (int i = 0; i < l.size(); i++) {
+      output[i] = l.get(i);
+     }
+     return output;
+   }
+
 
   private void writeFile() throws IOException {
     FileOutputStream output = new FileOutputStream(fileName);
-    byte[] fileData = packets.stream()
-                      .collect(ArrayList<Byte>::new,
-                              ((x, y) -> {x.addAll(y.getBody());}),
-                              ((x, y) -> {x.addAll(y);}),
-                              ((x) -> {x.toArray(new byte[]{});}));
+    Collector<DataPacket, ArrayList<Byte>, byte[]> fileDataCollector = Collector.of(
+      ArrayList<Byte>::new,
+      ((x, y) -> {x.addAll(y.getBodyAsList());}),
+      ((x, y) -> {x.addAll(y); return x;}),
+      this::convertListofBytes
+    );
+    byte[] fileData = packets.stream().collect(fileDataCollector);
+
     output.write(fileData);
     output.flush();
   }

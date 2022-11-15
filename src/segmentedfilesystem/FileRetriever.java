@@ -2,16 +2,20 @@ package segmentedfilesystem;
 import java.util.HashMap;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
 import java.io.IOException;
 
 public class FileRetriever {
 
-        InetSocketAddress server;
         HashMap<Byte, FileSerializer> files;
+        int port;
+        String hostName;
+        private static final int FILES_EXPECTED = 3;
 
         public FileRetriever(String hostName, int port) {
-          server = new InetSocketAddress(hostName, port);
+          this.hostName = hostName;
+          this.port = port;
+          //server = new InetSocketAddress(hostName, port);
           files = new HashMap<Byte, FileSerializer>();
 	}
 
@@ -28,12 +32,15 @@ public class FileRetriever {
         // PacketManager.allPacketsReceived() that you could
         // call for that, but there are a bunch of possible
         // ways.
-          DatagramSocket s = new DatagramSocket(server);
-          DatagramPacket p = new DatagramPacket(new byte[1028], 1028, server);
-          while (!s.isClosed()) {
+          DatagramSocket s = new DatagramSocket(port, InetAddress.getByName(hostName));
+          DatagramPacket p = new DatagramPacket(new byte[1028], 1028);
+          int filesWritten = 0;
+          while (filesWritten < FILES_EXPECTED) {
             s.receive(p);
             Packet pack = PacketCollector.createPacket(p);
-            addPacket(pack);
+            if (addPacket(pack)) {
+              filesWritten++;
+            };
           }
 	}
 

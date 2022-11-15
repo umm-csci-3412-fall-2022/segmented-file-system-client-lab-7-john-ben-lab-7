@@ -1,4 +1,5 @@
 package segmentedfilesystem;
+import java.util.ArrayList;
 
 public class DataPacket extends Packet {
   protected int packetNumber;
@@ -19,4 +20,19 @@ public class DataPacket extends Packet {
     return body;
   }
 
+  public void setPacketNumber(int n) {
+    packetNumber = n;
+  }
+
+  public void setisLast(boolean b) {
+    isLast = b;
+  }
+
+  public ArrayList<Byte> getBodyAsList() {
+    ArrayList<Byte> output = new ArrayList<Byte>();
+    for (byte b: body) {
+      output.add(b);
+    }
+    return output;
+  }
 }

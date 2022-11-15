@@ -8,4 +8,8 @@ public class HeaderPacket extends Packet {
   public String getFileName() {
     return fileName;
   }
+
+  public void setFileName(String n) {
+    fileName = n;
+  }
 }
