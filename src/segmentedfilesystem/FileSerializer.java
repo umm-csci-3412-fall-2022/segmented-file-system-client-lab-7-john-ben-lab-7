@@ -42,6 +42,8 @@ public class FileSerializer {
   }
 
   private boolean isWritable() {
+    //Check to confirm that we've recieved the last packet, all of the packets up to the last packet, and the
+    //file name.
     return (fileSize > 0) && (numPackets == fileSize) && (fileName != null);
   }
 
@@ -56,13 +58,17 @@ public class FileSerializer {
 
   private void writeFile() throws IOException {
     FileOutputStream output = new FileOutputStream(fileName);
+    //Extracts all the data from the data packets, and assembles them into the file body
     Collector<DataPacket, ArrayList<Byte>, byte[]> fileDataCollector = Collector.of(
       ArrayList<Byte>::new,
       ((x, y) -> {x.addAll(y.getBodyAsList());}),
       ((x, y) -> {x.addAll(y); return x;}),
       this::convertListofBytes
     );
-    byte[] fileData = packets.stream().collect(fileDataCollector);
+
+    byte[] fileData = packets.stream()
+      .sorted((x, y) -> x.getPacketNumber() - y.getPacketNumber())
+      .collect(fileDataCollector);
 
     output.write(fileData);
     output.flush();

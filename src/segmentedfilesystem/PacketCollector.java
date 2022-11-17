@@ -16,11 +16,12 @@ public class PacketCollector {
       output.setisLast(((data[0] % 4) == 3));
       output.setPacketNumber((256 * Byte.toUnsignedInt(data[2])) + Byte.toUnsignedInt(data[3]));
       output.setFileID(data[1]);
+      output.setBody(Arrays.copyOfRange(data, 4, input.getLength()));
       return output;
 
     } else { //The packet is a header packet
       HeaderPacket output = new HeaderPacket();
-      output.setFileName(new String(Arrays.copyOfRange(data, 2, data.length)));
+      output.setFileName(new String(data, 2, input.getLength() - 2));
       output.setFileID(data[1]);
       return output;
     }

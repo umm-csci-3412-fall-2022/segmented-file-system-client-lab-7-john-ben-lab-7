@@ -20,6 +20,10 @@ public class DataPacket extends Packet {
     return body;
   }
 
+  public void setBody(byte[] body) {
+    this.body = body;
+  }
+
   public void setPacketNumber(int n) {
     packetNumber = n;
   }
